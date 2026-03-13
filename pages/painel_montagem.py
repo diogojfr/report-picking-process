@@ -74,6 +74,7 @@ with col3:
     st.markdown('<div class="card-title">Tempo Médio Montagem por Montador</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
     tempo_montagem_mean = df_pallets.groupby("MONTADOR")["TEMPO_MONTAGEM"].mean().reset_index()
+    tempo_montagem_mean["TEMPO_MONTAGEM"] = round(tempo_montagem_mean["TEMPO_MONTAGEM"], 2)
     styled_table(tempo_montagem_mean)
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -82,6 +83,7 @@ with col4:
     st.markdown('<div class="card-title">Caixa Hora Médio por Montador</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
     caixa_hora_mean = df_caixa_hora.groupby("MONTADOR")["CAIXA_HORA"].mean().reset_index()
+    caixa_hora_mean["CAIXA_HORA"] = round(caixa_hora_mean["CAIXA_HORA"], 2)
     styled_table(caixa_hora_mean)
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -94,6 +96,7 @@ df_montagem_transporte_display = df_montagem_transporte[['TRANSPORTE','DATA_ENTR
                                                          'TOTAL_PALETES_MISTOS','LISTA',
                                                          'MONTADOR','CAIXAS','TEMPO_MONTAGEM_POR_USUARIO', 
                                                          'TEMPO_MONTAGEM_POR_TRANSPORTE']]
+df_montagem_transporte_display["DATA_ENTREGA"] = df_montagem_transporte_display["DATA_ENTREGA"].dt.date
 styled_table(df_montagem_transporte_display)
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -103,6 +106,8 @@ st.markdown('<div class="card">', unsafe_allow_html=True)
 st.markdown('<div class="card-title">Caixa Hora por Data de Entrega</div>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 if not df_caixa_hora.empty:
+    df_caixa_hora["CAIXA_HORA"] = round(df_caixa_hora["CAIXA_HORA"], 2)
+    df_caixa_hora["DATA_ENTREGA"] = df_caixa_hora["DATA_ENTREGA"].dt.date
     styled_table(df_caixa_hora)
 else:
     st.write("Dados de caixa hora indisponíveis")

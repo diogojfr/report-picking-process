@@ -96,9 +96,10 @@ with col2:
 
 # ── Table ────────────────────────────────────────────────────────────────
 st.markdown('<div class="card">', unsafe_allow_html=True)
-st.markdown('<div class="card-title">Detalhe de Erros</div>', unsafe_allow_html=True)
+st.markdown('<div class="card-title">Dados Detalhados - Erros</div>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 if not df_erros.empty:
+    df_erros["DATA_ENTREGA"] = df_erros["DATA_ENTREGA"].dt.date
     styled_table(df_erros)
 else:
     st.write("Dados de erros indisponíveis")

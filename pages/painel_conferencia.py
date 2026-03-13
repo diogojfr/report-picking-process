@@ -136,8 +136,8 @@ if cols:
         df_display["tempo_conferencia"] = df_display["tempo_conferencia"].apply(_format_duration)
 
     # Rename displayed columns to upper case for consistency
+    df_display["data_entrega"] = df_display["data_entrega"].dt.date
     df_display = df_display.rename(columns=str.upper)
-
     styled_table(df_display.sort_values(cols[0].upper(), ascending=False))
 else:
     st.write("Nenhum dado disponível para exibir.")
