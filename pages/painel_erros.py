@@ -15,7 +15,12 @@ from components.ui_components import (
 from components.data_loader import load_cargas, load_pallets, load_conferencia, load_caixa_hora, load_montagem_transporte, load_erros, load_erros_percentual
 from pages.painel_geral import TIPO_PALETE_totals
 
+GREEN    = "#2e7d32"
+GREEN_LT = "#66bb6a"
+RED      = "#c62828"
 
+COLORS = [RED, GREEN]
+COLORS_BAR = [GREEN, RED]
 
 df_pallets = load_pallets()
 df_cargas  = load_cargas()
@@ -69,6 +74,7 @@ with col1:
     fig = donut_chart(
         labels=labels,
         values=values,
+        colors=COLORS,
     )
     st.plotly_chart(fig, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
