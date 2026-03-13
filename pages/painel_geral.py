@@ -116,7 +116,7 @@ with col_left:
 
 with col_right:
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title">Pallets por Dia</div>',
+    st.markdown('<div class="card-title">Caixas por Dia</div>',
                 unsafe_allow_html=True)
     daily = (
         df_pallets.groupby(["DATA_ENTREGA", "TIPO_PALETE"])["CAIXAS"]
