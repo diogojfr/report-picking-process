@@ -84,10 +84,10 @@ with col2:
     st.markdown('<div class="card-title">Produtos com Mais Erros</div>', unsafe_allow_html=True)
     if not df_erros.empty and "PRODUTO" in df_erros.columns:
         produtos = (
-            df_erros.groupby("PRODUTO").size().reset_index(name="COUNT")
-            .sort_values("COUNT", ascending=True)
+            df_erros.groupby("PRODUTO").size().reset_index(name="TOTAL")
+            .sort_values("TOTAL", ascending=True)
         )
-        fig = bar_chart(produtos, x="COUNT", y="PRODUTO", orientation="h")
+        fig = bar_chart(produtos, x="TOTAL", y="PRODUTO", orientation="h")
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.write("Dados de erros indisponíveis")

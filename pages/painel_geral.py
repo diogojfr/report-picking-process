@@ -60,8 +60,8 @@ if not df_conferencia.empty and "data_entrega" in df_conferencia.columns:
 
 # ── KPI calculations ──────────────────────────────────────────────────────
 total_caixas      = int(df_pallets["CAIXAS"].sum())
-pallets_completos = int(df_pallets[df_pallets["TIPO_PALETE"] == "COMPLETO"]["CAIXAS"].sum())
-pallets_mistos    = int(df_pallets[df_pallets["TIPO_PALETE"] == "MISTO"]["CAIXAS"].sum())
+pallets_completos = int(df_pallets[df_pallets["TIPO_PALETE"] == "COMPLETO"]["CAIXAS"].count())
+pallets_mistos    = int(df_pallets[df_pallets["TIPO_PALETE"] == "MISTO"]["CAIXAS"].count())
 
 cargas_fin        = int(df_cargas[df_cargas["load_status_name"] == "Finalizado"]["load_id"].nunique())
 # tempo_medio_mont  = df_cargas["loading_time"].mean() if "loading_time" in df_cargas else 0
@@ -105,7 +105,7 @@ with col_left:
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown('<div class="card-title">Percentual de Pallets por Tipo</div>',
                 unsafe_allow_html=True)
-    TIPO_PALETE_totals = df_pallets.groupby("TIPO_PALETE")["CAIXAS"].sum().reset_index()
+    TIPO_PALETE_totals = df_pallets.groupby("TIPO_PALETE")["CAIXAS"].count().reset_index()
     fig = donut_chart(
         labels=TIPO_PALETE_totals["TIPO_PALETE"].tolist(),
         values=TIPO_PALETE_totals["CAIXAS"].tolist(),
