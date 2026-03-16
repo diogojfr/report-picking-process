@@ -7,6 +7,7 @@ Charts: Bar  – Conferências por Operador
 """
 import streamlit as st
 import pandas as pd
+from io import BytesIO
 
 from components.ui_components import (
     page_header, date_filter, metric_row,
@@ -14,7 +15,12 @@ from components.ui_components import (
 )
 from components.data_loader import load_cargas, load_pallets, load_conferencia, load_caixa_hora, load_montagem_transporte
 
-
+def _df_to_excel_bytes(df: pd.DataFrame) -> bytes:
+    """Return a DataFrame converted to Excel bytes for Streamlit download."""
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Dados")
+    return output.getvalue()
 
 df_pallets = load_pallets()
 df_cargas  = load_cargas()
@@ -138,6 +144,15 @@ if cols:
     # Rename displayed columns to upper case for consistency
     df_display["data_entrega"] = df_display["data_entrega"].dt.date
     df_display = df_display.rename(columns=str.upper)
+
+    # Download button for the cargos table
+    st.download_button(
+        label="📥 Baixar Tabela",
+        data=_df_to_excel_bytes(df_display.sort_values(cols[0].upper(), ascending=False)),
+        file_name="dados_conferencia.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
     styled_table(df_display.sort_values(cols[0].upper(), ascending=False))
 else:
     st.write("Nenhum dado disponível para exibir.")

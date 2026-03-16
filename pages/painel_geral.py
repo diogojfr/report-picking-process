@@ -10,12 +10,21 @@ Charts: Donut – % Pallets por Tipo
 """
 import streamlit as st
 import pandas as pd
+from io import BytesIO
 
 from components.ui_components import (
     page_header, date_filter, metric_row,
     donut_chart, bar_chart, line_chart,
     styled_table, csv_uploader,
 )
+
+
+def _df_to_excel_bytes(df: pd.DataFrame) -> bytes:
+    """Return a DataFrame converted to Excel bytes for Streamlit download."""
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Dados")
+    return output.getvalue()
 from components.data_loader import load_pallets, load_cargas, load_conferencia
 
 GREEN    = "#2e7d32"
@@ -170,6 +179,17 @@ df_cargas_display = df_cargas_display.rename(columns={
     'checker': 'Conferente',
     'loading_time': 'Tempo de Carregamento (horas)'
 })
+
+df_cargas_display["Data de Entrega"] = df_cargas_display["Data de Entrega"].dt.date
+
+# Download button for the cargos table
+st.download_button(
+    label="📥 Baixar Tabela",
+    data=_df_to_excel_bytes(df_cargas_display),
+    file_name="dados_cargas.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+)
+
 styled_table(df_cargas_display)
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -177,6 +197,17 @@ st.markdown("<div style='height:16px'/>", unsafe_allow_html=True)
 
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.markdown('<div class="card-title">Dados detalhados – Listas</div>', unsafe_allow_html=True)
+
+df_pallets["DATA_ENTREGA"] = df_pallets["DATA_ENTREGA"].dt.date
+
+# Download button for the pallets/listas table
+st.download_button(
+    label="📥 Baixar Tabela",
+    data=_df_to_excel_bytes(df_pallets),
+    file_name="dados_listas.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+)
+
 # df_pallets_display = df_pallets[['DATA_ENTREGA', 'MONTADOR', 'CAIXAS', 'TIPO_PALETE', 'TEMPO_MONTAGEM', 'CONFERENTE']]
 # df_pallets_display = df_pallets_display.rename(columns={
 #     'DATA_ENTREGA': 'Data de Entrega',

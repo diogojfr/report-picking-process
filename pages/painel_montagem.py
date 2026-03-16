@@ -7,6 +7,7 @@ Charts: Bar  – Montagens por Operador
 """
 import streamlit as st
 import pandas as pd
+from io import BytesIO
 
 from components.ui_components import (
     page_header, date_filter, metric_row,
@@ -14,7 +15,12 @@ from components.ui_components import (
 )
 from components.data_loader import load_cargas, load_pallets, load_conferencia, load_caixa_hora, load_montagem_transporte
 
-
+def _df_to_excel_bytes(df: pd.DataFrame) -> bytes:
+    """Return a DataFrame converted to Excel bytes for Streamlit download."""
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Dados")
+    return output.getvalue()
 
 df_pallets = load_pallets()
 df_cargas  = load_cargas()
@@ -97,6 +103,15 @@ df_montagem_transporte_display = df_montagem_transporte[['TRANSPORTE','DATA_ENTR
                                                          'MONTADOR','CAIXAS','TEMPO_MONTAGEM_POR_USUARIO', 
                                                          'TEMPO_MONTAGEM_POR_TRANSPORTE']]
 df_montagem_transporte_display["DATA_ENTREGA"] = df_montagem_transporte_display["DATA_ENTREGA"].dt.date
+
+# Download button for the cargos table
+st.download_button(
+    label="📥 Baixar Tabela",
+    data=_df_to_excel_bytes(df_montagem_transporte_display),
+    file_name="dados_montagem_por_transporte.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+)
+
 styled_table(df_montagem_transporte_display)
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -108,6 +123,15 @@ st.markdown('</div>', unsafe_allow_html=True)
 if not df_caixa_hora.empty:
     df_caixa_hora["CAIXA_HORA"] = round(df_caixa_hora["CAIXA_HORA"], 2)
     df_caixa_hora["DATA_ENTREGA"] = df_caixa_hora["DATA_ENTREGA"].dt.date
+
+    # Download button for the cargos table
+    st.download_button(
+        label="📥 Baixar Tabela",
+        data=_df_to_excel_bytes(df_caixa_hora),
+        file_name="dados_caixa_hora_data_entrega.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
     styled_table(df_caixa_hora)
 else:
     st.write("Dados de caixa hora indisponíveis")

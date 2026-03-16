@@ -7,11 +7,22 @@ Charts: Bar  – Erros por Tipo
 """
 import streamlit as st
 import pandas as pd
+from io import BytesIO
+
 
 from components.ui_components import (
     page_header, date_filter, metric_row,
     bar_chart, line_chart, donut_chart, styled_table, csv_uploader,
 )
+
+def _df_to_excel_bytes(df: pd.DataFrame) -> bytes:
+    """Return a DataFrame converted to Excel bytes for Streamlit download."""
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Dados")
+    return output.getvalue()
+from components.data_loader import load_pallets, load_cargas, load_conferencia
+
 from components.data_loader import load_cargas, load_pallets, load_conferencia, load_caixa_hora, load_montagem_transporte, load_erros, load_erros_percentual
 from pages.painel_geral import TIPO_PALETE_totals
 
@@ -100,6 +111,15 @@ st.markdown('<div class="card-title">Dados Detalhados - Erros</div>', unsafe_all
 st.markdown('</div>', unsafe_allow_html=True)
 if not df_erros.empty:
     df_erros["DATA_ENTREGA"] = df_erros["DATA_ENTREGA"].dt.date
+
+    # Download button for the cargos table
+    st.download_button(
+        label="📥 Baixar Tabela",
+        data=_df_to_excel_bytes(df_erros),
+        file_name="dados_erros.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
     styled_table(df_erros)
 else:
     st.write("Dados de erros indisponíveis")

@@ -85,7 +85,7 @@ def _chart_defaults(fig: go.Figure) -> go.Figure:
         font_color=GRAY,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         margin=dict(l=0, r=0, t=10, b=0),
-        xaxis=dict(showgrid=False, zeroline=True),
+        xaxis=dict(showgrid=True, zeroline=True),
         yaxis=dict(showgrid=True, gridcolor="#f1f5f9", zeroline=True),
         xaxis_zeroline=True, 
         yaxis_zeroline=True
