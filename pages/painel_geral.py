@@ -72,7 +72,8 @@ total_caixas      = int(df_pallets["CAIXAS"].sum())
 pallets_completos = int(df_pallets[df_pallets["TIPO_PALETE"] == "COMPLETO"]["CAIXAS"].count())
 pallets_mistos    = int(df_pallets[df_pallets["TIPO_PALETE"] == "MISTO"]["CAIXAS"].count())
 
-cargas_fin        = int(df_cargas[df_cargas["load_status_name"] == "Finalizado"]["load_id"].nunique())
+# cargas_fin        = int(df_cargas[df_cargas["load_status_name"] == "Finalizado"]["load_id"].nunique())
+cargas_fin        = int(df_pallets["TRANSPORTE"].nunique())
 # tempo_medio_mont  = df_cargas["loading_time"].mean() if "loading_time" in df_cargas else 0
 tempo_medio_mont  = df_pallets["TEMPO_MONTAGEM"].mean() if "TEMPO_MONTAGEM" in df_pallets else 0
 if "tempo_conferencia" in df_conferencia and not df_conferencia["tempo_conferencia"].empty:
