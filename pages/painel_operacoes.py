@@ -179,7 +179,7 @@ df_operacaoes_display = df_operacaoes.rename(columns={
     'DURAÇÃO': 'DURAÇÃO',
     'data_operacao': 'DATA_DA_OPERAÇÃO'
 })
-df_operacaoes_display = df_operacaoes_display[["DATA_DA_OPERAÇÃO", "INÍCIO_DA_OPERAÇÃO", "FIM_DA_OPERAÇÃO", "DURAÇÃO"]]
+df_operacaoes_display = df_operacaoes_display[["DATA_DA_OPERAÇÃO", "INÍCIO_DA_OPERAÇÃO", "FIM_DA_OPERAÇÃO", "ULTIMO_EMPILHAMENTO", "DURAÇÃO"]]
 # Download button for the operations table
 st.download_button(
     label="📥 Baixar Tabela",
