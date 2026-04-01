@@ -175,6 +175,7 @@ df_operacaoes_display = df_operacaoes.rename(columns={
     'INÍCIO DO INTERVALO': 'INÍCIO_DO_INTERVALO',
     'FIM DO INTERVALO': 'FIM_DO_INTERVALO',
     'FIM DA OPERAÇÃO': 'FIM_DA_OPERAÇÃO',
+    'ULTIMO EMPILHAMENTO': 'ULTIMO_EMPILHAMENTO',
     'DURAÇÃO': 'DURAÇÃO',
     'data_operacao': 'DATA_DA_OPERAÇÃO'
 })
