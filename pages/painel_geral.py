@@ -75,11 +75,49 @@ pallets_mistos    = int(df_pallets[df_pallets["TIPO_PALETE"] == "MISTO"]["CAIXAS
 # cargas_fin        = int(df_cargas[df_cargas["load_status_name"] == "Finalizado"]["load_id"].nunique())
 cargas_fin        = int(df_pallets["TRANSPORTE"].nunique())
 # tempo_medio_mont  = df_cargas["loading_time"].mean() if "loading_time" in df_cargas else 0
-tempo_medio_mont  = df_pallets["TEMPO_MONTAGEM"].mean() if "TEMPO_MONTAGEM" in df_pallets else 0
-if "tempo_conferencia" in df_conferencia and not df_conferencia["tempo_conferencia"].empty:
-    tempo_medio_conf_ts = df_conferencia["tempo_conferencia"].mean()
-    tempo_medio_conf = tempo_medio_conf_ts.time() if hasattr(tempo_medio_conf_ts, "time") else tempo_medio_conf_ts
-    tempo_medio_conf = str(tempo_medio_conf).split('.')[0]
+raw_tempo_medio_mont  = df_pallets["TEMPO_MONTAGEM"].mean() if "TEMPO_MONTAGEM" in df_pallets else 0
+if pd.isna(raw_tempo_medio_mont):
+    tempo_medio_mont = "00:00:00"
+else:
+    # TEMPO_MONTAGEM is in minutes; format as hh:mm:ss
+    total_seconds_mont = int(raw_tempo_medio_mont * 60)
+    h_mont = total_seconds_mont // 3600
+    m_mont = (total_seconds_mont % 3600) // 60
+    s_mont = total_seconds_mont % 60
+    tempo_medio_mont = f"{h_mont:02d}:{m_mont:02d}:{s_mont:02d}"
+
+if "tempo_conferencia" in df_conferencia and not df_conferencia["tempo_conferencia"].dropna().empty:
+
+    tempo_medio_por_conferente = df_conferencia.groupby("conferente")["tempo_conferencia"].mean().reset_index()
+
+    def _format_duration(v):
+        if pd.isna(v):
+            return ""
+        if hasattr(v, "time"):
+            return v.time().strftime("%H:%M:%S")
+        if isinstance(v, pd.Timedelta):
+            return str(v).split(".")[0]
+        return str(v)
+
+    tempo_medio_por_conferente["tempo_conferencia"] = (
+        tempo_medio_por_conferente["tempo_conferencia"].apply(_format_duration)
+    )
+
+    tempo_medio_por_conferente_d = tempo_medio_por_conferente.rename(columns={
+        'conferente': 'CONFERENTE',
+        'tempo_conferencia': 'TEMPO MÉDIO CONFERÊNCIA'
+    })
+    tempo_medio_por_conferente_d["TEMPO MÉDIO CONFERÊNCIA"] = pd.to_timedelta(tempo_medio_por_conferente_d["TEMPO MÉDIO CONFERÊNCIA"], errors="coerce")
+    mean_td = tempo_medio_por_conferente_d["TEMPO MÉDIO CONFERÊNCIA"].mean()
+    if pd.isna(mean_td):
+        tempo_medio_conf = "00:00:00"
+    else:
+        total_seconds_conf = int(mean_td.total_seconds())
+        h_conf = total_seconds_conf // 3600
+        m_conf = (total_seconds_conf % 3600) // 60
+        s_conf = total_seconds_conf % 60
+        tempo_medio_conf = f"{h_conf:02d}:{m_conf:02d}:{s_conf:02d}"
+
 else:
     tempo_medio_conf = "00:00:00"
 
@@ -102,8 +140,8 @@ st.markdown("<div style='height:16px'/>", unsafe_allow_html=True)
 # ── Row 2: three KPI cards ─────────────────────────────────────────────────
 metric_row([
     {"label": "Cargas Finalizadas",              "value": cargas_fin},
-    {"label": "Tempo Médio Montagem (min)",       "value": f"{tempo_medio_mont:.2f}"},
-    {"label": "Tempo Médio Conferência",          "value": f"{tempo_medio_conf}"},   # comes from conferencia.csv
+    {"label": "Tempo Médio Montagem",             "value": tempo_medio_mont},
+    {"label": "Tempo Médio Conferência",          "value": tempo_medio_conf},
 ])
 
 st.markdown("<div style='height:24px'/>", unsafe_allow_html=True)
