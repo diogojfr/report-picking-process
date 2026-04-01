@@ -68,3 +68,13 @@ def load_erros_percentual() -> pd.DataFrame:
     """Expects: data/tab_errors_percent.csv  with columns date, carga_id, error_type, qty"""
     df = load_csv("tab_percent_errors.csv", sep=",")
     return df
+
+def load_duracao_operacao() -> pd.DataFrame:
+    """Expects: data/duracao_operacao.csv  with columns date, carga_id, error_type, qty"""
+    df = load_csv("tab_duracao_operacao.csv", parse_dates=["data_operacao"])
+    return df
+
+def load_horas_trabalhadas() -> pd.DataFrame:
+    """Expects: data/horas_trabalhadas.csv  with columns date, carga_id, error_type, qty"""
+    df = load_csv("tab_horas_trabalhadas.csv", parse_dates=["data_operacao"])
+    return df

@@ -38,6 +38,7 @@ pages = [
     st.Page("pages/painel_montagem.py", title="🔧  Painel Montagem"),
     st.Page("pages/painel_conferencia.py", title="✅  Painel Conferência"),
     st.Page("pages/painel_erros.py", title="⚠️  Painel Erros"),
+    st.Page("pages/painel_operacoes.py", title="⏱️  Painel Operações"),
 ]
 
 current = st.navigation(pages)
