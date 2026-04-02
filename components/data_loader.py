@@ -74,7 +74,17 @@ def load_duracao_operacao() -> pd.DataFrame:
     df = load_csv("tab_duracao_operacao.csv", parse_dates=["data_operacao"])
     return df
 
+def load_op_perfil() -> pd.DataFrame:
+    """Expects: data/op_perfil.csv  with columns date, carga_id, error_type, qty"""
+    df = load_csv("tab_op_perfil.csv", parse_dates=["data_operacao"])
+    return df
+
 def load_horas_trabalhadas() -> pd.DataFrame:
     """Expects: data/horas_trabalhadas.csv  with columns date, carga_id, error_type, qty"""
     df = load_csv("tab_horas_trabalhadas.csv", parse_dates=["data_operacao"])
+    return df
+
+def load_operacao_perfil() -> pd.DataFrame:
+    """Expects: data/operacao_perfil.csv  with columns date, carga_id, error_type, qty"""
+    df = load_csv("tab_op_perfil.csv", parse_dates=["data_operacao"])
     return df

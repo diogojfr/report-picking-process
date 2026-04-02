@@ -20,7 +20,7 @@ def _df_to_excel_bytes(df: pd.DataFrame) -> bytes:
     with pd.ExcelWriter(output, engine="openpyxl") as writer:
         df.to_excel(writer, index=False, sheet_name="Dados")
     return output.getvalue()
-from components.data_loader import load_pallets, load_cargas, load_conferencia, load_duracao_operacao, load_horas_trabalhadas
+from components.data_loader import load_pallets, load_cargas, load_conferencia, load_duracao_operacao, load_horas_trabalhadas, load_op_perfil
 
 GREEN    = "#2e7d32"
 GREEN_LT = "#66bb6a"
@@ -44,6 +44,7 @@ df_cargas  = load_cargas()
 df_conferencia = load_conferencia()
 df_operacaoes = load_duracao_operacao()
 df_horas_trabalhadas = load_horas_trabalhadas()
+df_op_perfil = load_op_perfil()
 
 # ── Sidebar filters ───────────────────────────────────────────────────────
 # Use a single date picker for all charts (same period applied across datasets)
@@ -66,6 +67,10 @@ if not df_pallets.empty and "DATA_ENTREGA" in df_pallets.columns:
 if not df_horas_trabalhadas.empty and "data_operacao" in df_horas_trabalhadas.columns:
     mask_horas = (df_horas_trabalhadas["data_operacao"].dt.date >= start) & (df_horas_trabalhadas["data_operacao"].dt.date <= end)
     df_horas_trabalhadas = df_horas_trabalhadas[mask_horas]
+
+if not df_op_perfil.empty and "data_operacao" in df_op_perfil.columns:
+    mask_op_perfil = (df_op_perfil["data_operacao"].dt.date >= start) & (df_op_perfil["data_operacao"].dt.date <= end)
+    df_op_perfil = df_op_perfil[mask_op_perfil]
 
 
 # ── KPI: Duração média das operações ───────────────────────────────────────
@@ -100,10 +105,110 @@ if "horas" in df_horas_trabalhadas.columns and not df_horas_trabalhadas["horas"]
 else:
     mean_horas_text = "N/A"
 
+# ── KPI: Médias de durações do perfil das operações ─────────────────────────
+def _calc_mean_duration(df, col):
+    if col in df.columns and not df[col].dropna().empty:
+        raw_dur = df[col].astype(str).str.strip().str.replace('"', '', regex=False)
+        dur_td = pd.to_timedelta(raw_dur, errors="coerce")
+        mean_dur = dur_td.mean()
+        if pd.isna(mean_dur):
+            return "N/A"
+        else:
+            total_seconds = int(mean_dur.total_seconds())
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60
+            return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+    return "N/A"
+
+mean_montagem_text = _calc_mean_duration(df_op_perfil, "DURAÇÃO DA MONTAGEM")
+mean_conferencia_text = _calc_mean_duration(df_op_perfil, "DURAÇÃO DA CONFERENCIA")
+mean_empilhamento_text = _calc_mean_duration(df_op_perfil, "DURAÇÃO DO EMPILHAMENTO")
+
 metric_row([
     {"label": "Duração Média das Operações", "value": mean_duration_text},
-    {"label": "Média Horas Trabalhadas", "value": mean_horas_text}
+    {"label": "Média Horas Trabalhadas", "value": mean_horas_text},
+    {"label": "Média Duração Montagem", "value": mean_montagem_text},
+    {"label": "Média Duração Conferência", "value": mean_conferencia_text},
+    {"label": "Média Duração Empilhamento", "value": mean_empilhamento_text}
 ])
+
+# ── Tabela: Perfil das Operações ─────────────────────────────────────────────
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.markdown('<div class="card-title">Dados detalhados – Duração por Perfil</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
+
+if not df_op_perfil.empty:
+    df_op_perfil_display = df_op_perfil.copy()
+    if "data_operacao" in df_op_perfil_display.columns:
+        df_op_perfil_display["data_operacao"] = df_op_perfil_display["data_operacao"].dt.date
+
+    # Rename columns for display
+    df_op_perfil_display = df_op_perfil_display.rename(columns={
+        'INÍCIO DA OPERAÇÃO': 'INÍCIO DA OPERAÇÃO',
+        'PRIMEIRA MONTAGEM': 'PRIMEIRA MONTAGEM',
+        'ULTIMA MONTAGEM': 'ÚLTIMA MONTAGEM',
+        'DURAÇÃO DA MONTAGEM': 'DURAÇÃO DA MONTAGEM',
+        'PRIMEIRA CONFERENCIA': 'PRIMEIRA CONFERÊNCIA',
+        'ULTIMA CONFERENCIA': 'ÚLTIMA CONFERÊNCIA',
+        'DURAÇÃO DA CONFERENCIA': 'DURAÇÃO DA CONFERÊNCIA',
+        'PRIMEIRO EMPILHAMENTO': 'PRIMEIRO EMPILHAMENTO',
+        'ULTIMO EMPILHAMENTO': 'ÚLTIMO EMPILHAMENTO',
+        'DURAÇÃO DO EMPILHAMENTO': 'DURAÇÃO DO EMPILHAMENTO',
+        'data_operacao': 'DATA DA OPERAÇÃO'
+    })
+
+    st.download_button(
+        label="📥 Baixar Tabela",
+        data=_df_to_excel_bytes(df_op_perfil_display),
+        file_name="dados_perfil_operacoes.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+    styled_table(df_op_perfil_display)
+else:
+    st.info("Nenhum dado disponível em perfil das operações para o período selecionado.")
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+# ── Gráfico: Comparação de durações por data ───────────────────────────────
+if not df_op_perfil.empty:
+    df_perfil_chart = df_op_perfil.copy()
+    df_perfil_chart["data_operacao"] = pd.to_datetime(df_perfil_chart["data_operacao"]).dt.date
+
+    # Convert durations to timedelta
+    df_perfil_chart["DURAÇÃO DA MONTAGEM_td"] = pd.to_timedelta(
+        df_perfil_chart["DURAÇÃO DA MONTAGEM"].astype(str).str.strip().str.replace('"', '', regex=False),
+        errors="coerce"
+    )
+    df_perfil_chart["DURAÇÃO DA CONFERENCIA_td"] = pd.to_timedelta(
+        df_perfil_chart["DURAÇÃO DA CONFERENCIA"].astype(str).str.strip().str.replace('"', '', regex=False),
+        errors="coerce"
+    )
+    df_perfil_chart["DURAÇÃO DO EMPILHAMENTO_td"] = pd.to_timedelta(
+        df_perfil_chart["DURAÇÃO DO EMPILHAMENTO"].astype(str).str.strip().str.replace('"', '', regex=False),
+        errors="coerce"
+    )
+
+    # Group by data_operacao and calculate mean durations
+    grouped = df_perfil_chart.groupby("data_operacao").agg({
+        "DURAÇÃO DA MONTAGEM_td": "mean",
+        "DURAÇÃO DA CONFERENCIA_td": "mean",
+        "DURAÇÃO DO EMPILHAMENTO_td": "mean"
+    }).reset_index()
+
+    # Melt to long format for plotting
+    melted = grouped.melt(id_vars="data_operacao", var_name="Tipo", value_name="Duração")
+    melted["Tipo"] = melted["Tipo"].str.replace("_td", "").str.replace("DURAÇÃO DA ", "").str.replace("DURAÇÃO DO ", "")
+    melted["Horas"] = (melted["Duração"].dt.total_seconds() / 3600.0).round(2)
+
+    fig_comp = bar_chart(melted, x="data_operacao", y="Horas", color="Tipo", barmode="group")
+    fig_comp.update_layout(
+        title="Comparação de Durações por Data",
+        xaxis_title="Data",
+        yaxis_title="Horas",
+    )
+    st.plotly_chart(fig_comp, use_container_width=True)
 
 # ── Gráfico: Duração das operações por data ─────────────────────────────────
 st.markdown('<div class="card">', unsafe_allow_html=True)
