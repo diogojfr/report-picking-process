@@ -72,6 +72,33 @@ with col2:
     st.plotly_chart(fig, width="stretch")
     st.markdown('</div>', unsafe_allow_html=True)
 
+st.markdown("<div style='height:24px'/>", unsafe_allow_html=True)
+
+col5, col6 = st.columns(2)
+
+with col5:
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<div class="card-title">Tabela - Caixas por Montador</div>', unsafe_allow_html=True)
+    st.download_button(
+        label="📥 Baixar Tabela",
+        data=_df_to_excel_bytes(caixas_por_montador),
+        file_name="caixas_por_montador.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    styled_table(caixas_por_montador)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with col6:
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<div class="card-title">Tabela - Paletes por Montador</div>', unsafe_allow_html=True)
+    st.download_button(
+        label="📥 Baixar Tabela",
+        data=_df_to_excel_bytes(paletes_por_montador),
+        file_name="paletes_por_montador.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    styled_table(paletes_por_montador)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 col3, col4 = st.columns(2)
 
