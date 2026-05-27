@@ -31,13 +31,13 @@ COLORS_BAR = [GREEN, RED]
 
 # def render():
 # ── Data ──────────────────────────────────────────────────────────────────
-need_pallets  = csv_uploader("Upload pallets.csv", "pallets.csv",
-                                ["date", "TIPO_PALETE", "CAIXAS"])
-need_cargas   = csv_uploader("Upload cargas.csv",  "cargas.csv",
-                                ["date", "carga_id", "status", "duration_min"])
+# need_pallets  = csv_uploader("Upload pallets.csv", "pallets.csv",
+#                                 ["date", "TIPO_PALETE", "CAIXAS"])
+# need_cargas   = csv_uploader("Upload cargas.csv",  "cargas.csv",
+#                                 ["date", "carga_id", "status", "duration_min"])
 
-if not (need_pallets and need_cargas):
-    st.stop()
+# if not (need_pallets and need_cargas):
+#     st.stop()
 
 df_pallets = load_pallets()
 df_cargas  = load_cargas()
