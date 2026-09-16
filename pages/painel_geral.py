@@ -237,7 +237,7 @@ st.markdown("<div style='height:16px'/>", unsafe_allow_html=True)
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.markdown('<div class="card-title">Dados detalhados – Listas</div>', unsafe_allow_html=True)
 
-df_pallets["DATA_ENTREGA"] = df_pallets["DATA_ENTREGA"].dt.date
+# df_pallets["DATA_ENTREGA"] = df_pallets["DATA_ENTREGA"].dt.date
 df_pallets['DATA_OPERACAO'] = df_pallets['DATA_OPERACAO'].dt.date
 
 # Download button for the pallets/listas table
