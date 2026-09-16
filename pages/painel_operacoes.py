@@ -56,12 +56,12 @@ if not df_cargas.empty and "delivery_date" in df_cargas.columns:
     mask_cargas = (df_cargas["delivery_date"].dt.date >= start) & (df_cargas["delivery_date"].dt.date <= end)
     df_cargas = df_cargas[mask_cargas]
 
-if not df_conferencia.empty and "data_entrega" in df_conferencia.columns:
-    mask_conf = (df_conferencia["data_entrega"].dt.date >= start) & (df_conferencia["data_entrega"].dt.date <= end)
+if not df_conferencia.empty and "data_operacao" in df_conferencia.columns:
+    mask_conf = (df_conferencia["data_operacao"].dt.date >= start) & (df_conferencia["data_operacao"].dt.date <= end)
     df_conferencia = df_conferencia[mask_conf]
 
-if not df_pallets.empty and "DATA_ENTREGA" in df_pallets.columns:
-    mask_pallets = (df_pallets["DATA_ENTREGA"].dt.date >= start) & (df_pallets["DATA_ENTREGA"].dt.date <= end)
+if not df_pallets.empty and "DATA_OPERACAO" in df_pallets.columns:
+    mask_pallets = (df_pallets["DATA_OPERACAO"].dt.date >= start) & (df_pallets["DATA_OPERACAO"].dt.date <= end)
     df_pallets = df_pallets[mask_pallets]
 
 if not df_horas_trabalhadas.empty and "data_operacao" in df_horas_trabalhadas.columns:
