@@ -23,7 +23,7 @@ def load_csv(filename: str, **kwargs) -> pd.DataFrame:
 def load_pallets() -> pd.DataFrame:
     """Expects: data/pallets.csv  with columns date, type, qty"""
     # df = load_csv("pallets.csv", parse_dates=["date"])
-    df = load_csv("tab_orders.csv", parse_dates=["DATA_ENTREGA"])
+    df = load_csv("tab_orders.csv", parse_dates=["DATA_OPERACAO"])
     return df
 
 
