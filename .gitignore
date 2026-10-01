@@ -1,3 +1,6 @@
 .venv
 instructions_new_data.md
 /queries
+.env
+__pycache__/
+*.pyc
