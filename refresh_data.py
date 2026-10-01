@@ -23,6 +23,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from psycopg2 import extensions as pg_ext
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 from sshtunnel import SSHTunnelForwarder
 
 BASE_DIR = Path(__file__).parent
@@ -164,9 +165,19 @@ def main() -> int:
         remote_bind_address=(_env("DB_HOST"), int(_env("DB_PORT"))),
     ) as tunnel:
         register_safe_date_casters()
+        # URL.create escapa usuário e senha. Montar a URL por concatenação quebra
+        # quando a senha tem @ : / ou # — o parser corta no primeiro @ e trata o
+        # resto da senha como nome de host.
+        url = URL.create(
+            "postgresql+psycopg2",
+            username=_env("DB_USER"),
+            password=_env("DB_PASSWORD"),
+            host="127.0.0.1",
+            port=tunnel.local_bind_port,
+            database=_env("DB_NAME"),
+        )
         engine = create_engine(
-            f"postgresql+psycopg2://{_env('DB_USER')}:{_env('DB_PASSWORD')}"
-            f"@127.0.0.1:{tunnel.local_bind_port}/{_env('DB_NAME')}",
+            url,
             # search_path replica o schema ativo que o DBeaver definia: algumas queries
             # referenciam tabelas sem prefixo (ex.: "FROM daily_operations"), e sem isso
             # elas resolvem para public.* e voltam vazias em vez de dar erro.
